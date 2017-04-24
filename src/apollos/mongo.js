@@ -46,19 +46,19 @@ export class MongoConnector {
     const start = new Date();
     const label = `${prefix}-${count}`;
     if (dd) dd.increment(`${prefix}.transaction.count`);
-    console.time(label);
+    // console.time(label);
     return promise
       .then((x) => {
         const end = new Date();
         if (dd) dd.histogram(`${prefix}.transaction.time`, (end - start), [""]);
-        console.timeEnd(label);
+        // console.timeEnd(label);
         return x;
       })
       .catch((x) => {
         const end = new Date();
         if (dd) dd.histogram(`${prefix}.transaction.time`, (end - start), [""]);
         if (dd) dd.increment(`${prefix}.transaction.error`);
-        console.timeEnd(label);
+        // console.timeEnd(label);
         return x;
       });
   }
@@ -67,28 +67,28 @@ export class MongoConnector {
     const label = `MongoConnector${this.getCount()}`;
     console.time(label);
     return this.model.find.apply(this.model, args)
-      .then(x => { console.timeEnd(label); return x; });
+      .then(x => { /*console.timeEnd(label);*/ return x; });
   }
 
   remove(...args) {
     const label = `MongoConnector${this.getCount()}`;
     console.time(label);
     return this.model.remove.apply(this.model, args)
-      .then(x => { console.timeEnd(label); return x; });
+      .then(x => { /*console.timeEnd(label);*/ return x; });
   }
 
   create(...args) {
     const label = `MongoConnector${this.getCount()}`;
     console.time(label);
     return this.model.create.apply(this.model, args)
-      .then(x => { console.timeEnd(label); return x; });
+      .then(x => { /*console.timeEnd(label);*/ return x; });
   }
 
   distinct(field, query) {
     const label = `MongoConnector${this.getCount()}`;
     console.time(label);
     return this.model.distinct(field, query)
-      .then(x => { console.timeEnd(label); return x; });
+      .then(x => { /*console.timeEnd(label);*/ return x; });
   }
 
   getCount() {

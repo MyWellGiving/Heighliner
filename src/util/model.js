@@ -29,7 +29,7 @@ export class Heighliner {
   }
 
   debug(data) {
-    console.log("DEBUG:", data); // tslint:disable-line
+    // console.log("DEBUG:", data); // tslint:disable-line
     return data;
   }
 
