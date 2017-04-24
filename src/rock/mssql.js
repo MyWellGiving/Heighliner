@@ -37,7 +37,7 @@ export function connect(monitor) {
   return new Promise((cb) => {
     const opts = merge({}, RockSettings.opts, {
       dialect: "mssql",
-      logging: process.env.NODE_ENV !== "production" ? loud : noop, // tslint:disable-line
+      logging: process.env.NODE_ENV !== "production" ? noop : noop, // tslint:disable-line
       benchmark: process.env.NODE_ENV !== "production",
       dialectOptions: {
         readOnlyIntent: true,
@@ -169,19 +169,19 @@ export class MSSQLConnector {
     const start = new Date();
     const label = `${prefix}-${count}`;
     if (dd) dd.increment(`${prefix}.transaction.count`);
-    console.time(label); // tslint:disable-line
+    // console.time(label); // tslint:disable-line
     return promise
       .then(x => {
         const end = new Date();
         if (dd) dd.histogram(`${prefix}.transaction.time`, (end - start), [""]);
-        console.timeEnd(label); // tslint:disable-line
+        // console.timeEnd(label); // tslint:disable-line
         return x;
       })
       .catch(x => {
         const end = new Date();
         if (dd) dd.histogram(`${prefix}.transaction.time`, (end - start), [""]);
         if (dd) dd.increment(`${prefix}.transaction.error`);
-        console.timeEnd(label); // tslint:disable-line
+        // console.timeEnd(label); // tslint:disable-line
         return x;
       });
   }

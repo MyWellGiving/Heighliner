@@ -86,6 +86,9 @@ describe("Like", () => {
       await like.getLikedContent("1234", mockData.nodeModel);
       expect(mockData.nodeModel.get).toHaveBeenCalledTimes(1);
     });
+    it("should filter out null responses from node model lookup", () => {
+
+    });
   });
 
   describe("toggleLike", () => {

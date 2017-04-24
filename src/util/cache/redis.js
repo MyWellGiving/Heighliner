@@ -62,13 +62,13 @@ export class RedisCache {
     const start = new Date();
     const label = `${prefix}-${count}`;
     if (dd) dd.increment(`${prefix}.transaction.count`);
-    console.time(label); // tslint:disable-line
+    // console.time(label); // tslint:disable-line
     return promise
       .then(x => {
         if (log()) {
           const end = new Date();
           if (dd) dd.histogram(`${prefix}.transaction.time`, (end - start), [""]);
-          console.timeEnd(label); // tslint:disable-line
+          // console.timeEnd(label); // tslint:disable-line
         } else {
           if (dd) dd.increment(`${prefix}.transaction.miss`);
         }
@@ -78,7 +78,7 @@ export class RedisCache {
         const end = new Date();
         if (dd) dd.histogram(`${prefix}.transaction.time`, (end - start), [""]);
         if (dd) dd.increment(`${prefix}.transaction.error`);
-        console.timeEnd(label); // tslint:disable-line
+        // console.timeEnd(label); // tslint:disable-line
         return x;
       });
   }

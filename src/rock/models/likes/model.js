@@ -52,7 +52,8 @@ export class Like {
 
   async getLikedContent(userId, node) {
     const likes = await this.getFromUserId(userId);
-    return await likes.map(async like => await node.get(like.entryId));
+    const promises = likes.map(async like => await node.get(like.entryId))
+    return Promise.all(promises).then(x => x.filter(y => y));
   }
 
   async getRecentlyLiked({ limit, skip, cache }, userId, nodeModel) {
