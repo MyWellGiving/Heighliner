@@ -75,8 +75,8 @@ export default class Transaction extends Rock {
   }
 
   async findByPersonAlias(aliases, { limit, offset }, { cache }) {
-    let deductibleAccounts = await FinancialAccount.find({
-      where: { IsTaxDeductible: true }
+    const deductibleAccounts = await FinancialAccount.find({
+      where: { IsTaxDeductible: true },
     }).then(x => x.map(y => y.Id));
 
     const query = { aliases, limit, offset };
@@ -84,7 +84,7 @@ export default class Transaction extends Rock {
       where: { AuthorizedPersonAliasId: { $in: aliases } },
       order: [
           ["TransactionDateTime", "DESC"],
-        ],
+      ],
       attributes: ["Id"],
       include: [
         {
@@ -96,7 +96,7 @@ export default class Transaction extends Rock {
     })
     , { cache })
       .then((x) => {
-        if(limit) return x.slice(offset, limit + offset);
+        if (limit) return x.slice(offset, limit + offset);
 
         return x;
       })
@@ -113,20 +113,20 @@ export default class Transaction extends Rock {
     if (start) TransactionDateTime.$gt = Moment(start);
     if (end) TransactionDateTime.$lt = Moment(end);
 
-    let ParentAccount = await FinancialAccount.find({
-      where: { ParentAccountId: id }
+    const ParentAccount = await FinancialAccount.find({
+      where: { ParentAccountId: id },
     }).then(x => x.map(y => y.Id));
 
     const where = {
       AuthorizedPersonAliasId: {
-        $in: include
-      }
+        $in: include,
+      },
     };
 
     const includeQuery = [
       {
         model: TransactionDetail.model,
-        where: { AccountId: { $in: ParentAccount }}
+        where: { AccountId: { $in: ParentAccount } },
       },
     ];
 
@@ -162,7 +162,7 @@ export default class Transaction extends Rock {
         include: includeQuery,
       })
     , { cache }).then((x) => {
-      if(limit) return x.slice(offset, limit + offset);
+      if (limit) return x.slice(offset, limit + offset);
 
       return x;
     });
@@ -170,8 +170,8 @@ export default class Transaction extends Rock {
 
   async findByGivingGroup({ id, include, start, end }, { limit, offset }, { cache }) {
     const query = { id, include, start, end };
-    let deductibleAccounts = await FinancialAccount.find({
-      where: { IsTaxDeductible: true }
+    const deductibleAccounts = await FinancialAccount.find({
+      where: { IsTaxDeductible: true },
     }).then(x => x.map(y => y.Id));
 
     let TransactionDateTime;
@@ -209,7 +209,7 @@ export default class Transaction extends Rock {
         ],
       })
     , { cache })
-      .then(x => {
+      .then((x) => {
         if (!limit) return x;
         return x.slice(offset, limit + offset);
       })
@@ -217,7 +217,7 @@ export default class Transaction extends Rock {
       ;
   }
 
-  async getStatement({ people, start, end, givingGroupId }){
+  async getStatement({ people, start, end, givingGroupId }) {
     const query = { people, start, end, givingGroupId };
 
     let TransactionDateTime;
@@ -225,8 +225,8 @@ export default class Transaction extends Rock {
     if (start) TransactionDateTime.$gt = Moment(start);
     if (end) TransactionDateTime.$lt = Moment(end);
 
-    let deductibleAccounts = await FinancialAccount.find({
-      where: { IsTaxDeductible: true }
+    const deductibleAccounts = await FinancialAccount.find({
+      where: { IsTaxDeductible: true },
     }).then(x => x.map(y => y.Id));
 
     const where = { };
@@ -236,7 +236,7 @@ export default class Transaction extends Rock {
         model: TransactionDetail.model,
         attributes: ["Amount", "AccountId"],
         where: { AccountId: { $in: deductibleAccounts } },
-        include: [{ model: FinancialAccount.model }]
+        include: [{ model: FinancialAccount.model }],
       },
       {
         model: PersonAlias.model,
@@ -257,7 +257,7 @@ export default class Transaction extends Rock {
             ],
           },
         ],
-      }
+      },
     ];
 
     if (start) where.TransactionDateTime = TransactionDateTime;
@@ -267,7 +267,7 @@ export default class Transaction extends Rock {
       const parent = find(ParentAccounts, { Id: x.FinancialAccount.ParentAccountId });
       if (parent) return parent.PublicName;
       return x.FinancialAccount.PublicName;
-    }
+    };
 
     return this.cache.get(
       this.cache.encode(query, "getStatement"), () => TransactionTable.find({
@@ -275,30 +275,28 @@ export default class Transaction extends Rock {
         attributes: ["TransactionDateTime"],
         where,
         include: includeQuery,
-      })
+      }),
     )
       .then((transactions) => {
         let total = 0;
         let details;
-        if(!Array.isArray(transactions)) {
+        if (!Array.isArray(transactions)) {
           details = [];
         } else {
-          details = flatten(transactions.map(({ TransactionDateTime, FinancialTransactionDetails }) => {
-            return FinancialTransactionDetails.map((x) => {
-              total += x.Amount;
-              return {
-                Amount: x.Amount,
-                Date: Moment(TransactionDateTime).format("MMM D, YYYY"),
-                Name: getName(x),
-              };
-            });
-          }));
+          details = flatten(transactions.map(({ TransactionDateTime, FinancialTransactionDetails }) => FinancialTransactionDetails.map((x) => {
+            total += x.Amount;
+            return {
+              Amount: x.Amount,
+              Date: Moment(TransactionDateTime).format("MMM D, YYYY"),
+              Name: getName(x),
+            };
+          })));
         }
 
         return {
           transactions: details,
           total,
-        }
+        };
       })
       .catch(this.debug)
       ;
@@ -337,13 +335,19 @@ export default class Transaction extends Rock {
         if (index === 1) return { [y.key]: y.value, [z.key]: z.value };
         return assign(y, { [z.key]: z.value });
       }))
-      ;
+    ;
+
+    let SecurityKey = {};
+    if (process.env.GIVE_ENV !== "production") {
+      SecurityKey = { SecurityKey: "2F822Rw39fx762MaV7Yy86jXGTC7sCDy" };
+    }
 
     this.gateway = assign(
       gateways,
       attributes,
-      // { SecurityKey: "2F822Rw39fx762MaV7Yy86jXGTC7sCDy" }
+      SecurityKey,
     );
+
     return this.gateway;
   }
 
@@ -405,7 +409,7 @@ export default class Transaction extends Rock {
 
     if (orderData.product && orderData.product.length) {
       orderData.product = orderData.product
-        .map((x) => ({ ...x, "unit-cost": x["total-amount"]}));
+        .map(x => ({ ...x, "unit-cost": x["total-amount"] }));
     }
 
     if (
@@ -462,7 +466,7 @@ export default class Transaction extends Rock {
     };
 
     if (order && order[method]) {
-      if(method === "add-subscription"){
+      if (method === "add-subscription") {
         if (!order[method]["merchant-defined-field-1"]) {
           report({ data }, new Error("merchant-defined-field-1 missing from subscription order information"));
         }
@@ -515,7 +519,7 @@ export default class Transaction extends Rock {
         scheduleId, response, person, accountName, origin,
       }, gatewayDetails))
       .then((data) => {
-        this.TransactionJob.add({...data, platform, version});
+        this.TransactionJob.add({ ...data, platform, version });
         return data;
       })
       .catch(({ message, code }) =>
